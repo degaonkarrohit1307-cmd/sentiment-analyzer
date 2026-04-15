@@ -1,0 +1,65 @@
+# ── Assignment 5: Kubernetes Deployment ──────────────────────────────────────
+# Deploy the Dockerized sentiment analyzer on Kubernetes
+#
+# Apply with:
+#   kubectl apply -f kubernetes/deployment.yaml
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentiment-analyzer
+  labels:
+    app: sentiment-analyzer
+    version: v1.1
+    team: mlops
+spec:
+  replicas: 2                       # Start with 2 pods for basic availability
+  selector:
+    matchLabels:
+      app: sentiment-analyzer
+  template:
+    metadata:
+      labels:
+        app: sentiment-analyzer
+        version: v1.1
+    spec:
+      containers:
+        - name: sentiment-analyzer
+          image: sentiment-analyzer:latest    # Docker image built from Dockerfile
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5000
+
+          # Resource requests and limits (required for HPA to work — Assignment 8)
+          resources:
+            requests:
+              cpu: "250m"           # 0.25 CPU core
+              memory: "256Mi"
+            limits:
+              cpu: "500m"           # 0.5 CPU core
+              memory: "512Mi"
+
+          # Environment variables
+          env:
+            - name: FLASK_ENV
+              value: "production"
+            - name: MODEL_VERSION
+              value: "v1.1"
+
+          # Liveness probe — restart container if it becomes unresponsive
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+
+          # Readiness probe — only send traffic when app is ready
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3

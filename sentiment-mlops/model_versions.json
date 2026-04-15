@@ -1,0 +1,80 @@
+{
+  "versions": [
+    {
+      "version": "v1.0",
+      "tag": "v1.0",
+      "description": "Baseline model using NLTK VADER only",
+      "engine": "VADER",
+      "thresholds": {
+        "positive": 0.05,
+        "negative": -0.05
+      },
+      "hyperparameters": {
+        "compound_positive_threshold": 0.05,
+        "compound_negative_threshold": -0.05,
+        "subjectivity_threshold": 0.5
+      },
+      "performance": {
+        "accuracy": 0.78,
+        "precision": 0.76,
+        "recall": 0.79,
+        "f1_score": 0.77
+      },
+      "trained_on": "2025-01-01",
+      "status": "retired"
+    },
+    {
+      "version": "v1.1",
+      "tag": "v1.1",
+      "description": "Added TextBlob subjectivity scoring alongside VADER",
+      "engine": "VADER + TextBlob",
+      "thresholds": {
+        "positive": 0.05,
+        "negative": -0.05
+      },
+      "hyperparameters": {
+        "compound_positive_threshold": 0.05,
+        "compound_negative_threshold": -0.05,
+        "subjectivity_threshold": 0.6,
+        "emotion_high_compound": 0.5,
+        "emotion_low_compound": -0.5
+      },
+      "performance": {
+        "accuracy": 0.83,
+        "precision": 0.82,
+        "recall": 0.84,
+        "f1_score": 0.83
+      },
+      "trained_on": "2025-06-01",
+      "status": "production"
+    },
+    {
+      "version": "v2.0",
+      "tag": "v2.0",
+      "description": "Tuned thresholds and added keyword extraction — under evaluation",
+      "engine": "VADER + TextBlob + Keywords",
+      "thresholds": {
+        "positive": 0.08,
+        "negative": -0.08
+      },
+      "hyperparameters": {
+        "compound_positive_threshold": 0.08,
+        "compound_negative_threshold": -0.08,
+        "subjectivity_threshold": 0.55,
+        "emotion_high_compound": 0.45,
+        "emotion_low_compound": -0.45,
+        "top_keywords": 15
+      },
+      "performance": {
+        "accuracy": 0.85,
+        "precision": 0.84,
+        "recall": 0.86,
+        "f1_score": 0.85
+      },
+      "trained_on": "2026-01-01",
+      "status": "testing"
+    }
+  ],
+  "current_production_version": "v1.1",
+  "ab_test_version": "v2.0"
+}

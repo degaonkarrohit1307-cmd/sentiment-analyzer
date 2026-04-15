@@ -1,0 +1,20 @@
+2026-04-15 18:12:57,351 [INFO] werkzeug - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.19.197.189:5000
+2026-04-15 18:12:57,353 [INFO] werkzeug - [33mPress CTRL+C to quit[0m
+2026-04-15 18:12:57,453 [INFO] werkzeug -  * Restarting with watchdog (windowsapi)
+2026-04-15 18:13:16,072 [WARNING] werkzeug -  * Debugger is active!
+2026-04-15 18:13:16,125 [INFO] werkzeug -  * Debugger PIN: 113-313-382
+2026-04-15 18:13:30,392 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 18:13:30] "GET / HTTP/1.1" 200 -
+2026-04-15 18:13:30,671 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 18:13:30] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-15 18:13:33,702 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 18:13:33] "GET /sample HTTP/1.1" 200 -
+2026-04-15 18:13:35,123 [INFO] sentiment-analyzer - POST /analyze received
+2026-04-15 18:13:35,401 [INFO] sentiment-analyzer - POST /analyze OK — 25 texts in 278.15ms using v1.1
+2026-04-15 18:13:35,404 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 18:13:35] "POST /analyze HTTP/1.1" 200 -
+2026-04-15 18:30:43,965 [INFO] werkzeug -  * Detected change in 'c:\\Users\\Rohit\\Downloads\\sentiment-analyzer new\\sentiment-mlops\\sentiment-analyzer\\app.py', reloading
+2026-04-15 18:30:43,967 [INFO] werkzeug -  * Detected change in 'c:\\Users\\Rohit\\Downloads\\sentiment-analyzer new\\sentiment-mlops\\sentiment-analyzer\\app.py', reloading
+2026-04-15 18:30:43,969 [INFO] werkzeug -  * Detected change in 'c:\\Users\\Rohit\\Downloads\\sentiment-analyzer new\\sentiment-mlops\\sentiment-analyzer\\app.py', reloading
+2026-04-15 18:30:45,342 [INFO] werkzeug -  * Restarting with watchdog (windowsapi)
+2026-04-15 18:31:00,141 [WARNING] werkzeug -  * Debugger is active!
+2026-04-15 18:31:00,237 [INFO] werkzeug -  * Debugger PIN: 113-313-382

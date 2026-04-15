@@ -1,0 +1,35 @@
+# ── Assignment 5: Kubernetes Service (LoadBalancer) ──────────────────────────
+# Exposes the sentiment analyzer deployment as a network service
+#
+# Apply with:
+#   kubectl apply -f kubernetes/service.yaml
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentiment-analyzer-service
+  labels:
+    app: sentiment-analyzer
+spec:
+  type: LoadBalancer          # Exposes app externally (use NodePort for Minikube)
+  selector:
+    app: sentiment-analyzer   # Routes traffic to pods with this label
+  ports:
+    - protocol: TCP
+      port: 80                # External port (accessible from outside)
+      targetPort: 5000        # Internal Flask port inside the container
+
+---
+# ── For Minikube (local testing) use NodePort instead ─────────────────────────
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: sentiment-analyzer-service
+# spec:
+#   type: NodePort
+#   selector:
+#     app: sentiment-analyzer
+#   ports:
+#     - port: 80
+#       targetPort: 5000
+#       nodePort: 30080

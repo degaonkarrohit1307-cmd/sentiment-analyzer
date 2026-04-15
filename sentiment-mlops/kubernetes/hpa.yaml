@@ -1,0 +1,54 @@
+# ── Assignment 8: Horizontal Pod Autoscaler (HPA) ────────────────────────────
+# Automatically scales the number of pods based on CPU/memory usage
+#
+# Apply with:
+#   kubectl apply -f kubernetes/hpa.yaml
+#
+# Prerequisites:
+#   kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+#
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sentiment-analyzer-hpa
+  labels:
+    app: sentiment-analyzer
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: sentiment-analyzer       # Must match the deployment name
+
+  minReplicas: 2                   # Always keep at least 2 pods running
+  maxReplicas: 10                  # Scale up to 10 pods under heavy load
+
+  metrics:
+    # Scale based on CPU usage
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 60   # Scale up when average CPU > 60%
+
+    # Scale based on Memory usage
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 70   # Scale up when average Memory > 70%
+
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30     # Wait 30s before scaling up again
+      policies:
+        - type: Pods
+          value: 2                       # Add max 2 pods at a time
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 120    # Wait 2 min before scaling down
+      policies:
+        - type: Pods
+          value: 1                       # Remove 1 pod at a time
+          periodSeconds: 60

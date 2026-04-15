@@ -1,0 +1,45 @@
+# ── Assignment 9: Prometheus Monitoring Configuration ─────────────────────────
+# Prometheus scrapes metrics from the Flask app's /metrics endpoint
+#
+# Run Prometheus with:
+#   docker run -p 9090:9090 -v $(pwd)/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
+#
+# Then open: http://localhost:9090
+
+global:
+  scrape_interval: 15s          # Scrape every 15 seconds
+  evaluation_interval: 15s      # Evaluate alerting rules every 15 seconds
+  scrape_timeout: 10s
+
+# Alertmanager configuration (optional)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['alertmanager:9093']
+
+# Rule files for alerting (optional)
+# rule_files:
+#   - "alert_rules.yml"
+
+scrape_configs:
+
+  # Scrape Prometheus itself
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Scrape the Sentiment Analyzer Flask app
+  - job_name: "sentiment-analyzer"
+    metrics_path: /metrics        # Our custom /metrics endpoint in app.py
+    scrape_interval: 10s
+    static_configs:
+      - targets: ["sentiment-analyzer:5000"]   # Docker/K8s service name
+        labels:
+          app: "sentiment-analyzer"
+          environment: "production"
+          version: "v1.1"
+
+  # Scrape Kubernetes nodes (if deployed on K8s)
+  # - job_name: "kubernetes-nodes"
+  #   kubernetes_sd_configs:
+  #     - role: node
