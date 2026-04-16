@@ -78,3 +78,17 @@
 2026-04-15 19:34:59,080 [INFO] sentiment-analyzer - POST /analyze received
 2026-04-15 19:34:59,292 [INFO] sentiment-analyzer - POST /analyze OK — 25 texts in 212.63ms using v1.1
 2026-04-15 19:34:59,294 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:34:59] "POST /analyze HTTP/1.1" 200 -
+2026-04-16 17:48:11,595 [INFO] werkzeug - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.19.197.189:5000
+2026-04-16 17:48:11,596 [INFO] werkzeug - [33mPress CTRL+C to quit[0m
+2026-04-16 17:48:11,638 [INFO] werkzeug -  * Restarting with watchdog (windowsapi)
+2026-04-16 17:48:21,562 [WARNING] werkzeug -  * Debugger is active!
+2026-04-16 17:48:21,784 [INFO] werkzeug -  * Debugger PIN: 635-439-451
+2026-04-16 17:48:24,343 [INFO] werkzeug - 127.0.0.1 - - [16/Apr/2026 17:48:24] "GET / HTTP/1.1" 200 -
+2026-04-16 17:48:49,606 [INFO] werkzeug - 127.0.0.1 - - [16/Apr/2026 17:48:49] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-16 17:48:52,946 [INFO] werkzeug - 127.0.0.1 - - [16/Apr/2026 17:48:52] "GET /sample HTTP/1.1" 200 -
+2026-04-16 17:48:53,760 [INFO] sentiment-analyzer - POST /analyze received
+2026-04-16 17:48:54,030 [INFO] sentiment-analyzer - POST /analyze OK — 25 texts in 269.78ms using v1.1
+2026-04-16 17:48:54,033 [INFO] werkzeug - 127.0.0.1 - - [16/Apr/2026 17:48:54] "POST /analyze HTTP/1.1" 200 -
