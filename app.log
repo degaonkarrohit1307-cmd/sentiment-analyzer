@@ -18,3 +18,63 @@
 2026-04-15 18:30:45,342 [INFO] werkzeug -  * Restarting with watchdog (windowsapi)
 2026-04-15 18:31:00,141 [WARNING] werkzeug -  * Debugger is active!
 2026-04-15 18:31:00,237 [INFO] werkzeug -  * Debugger PIN: 113-313-382
+2026-04-15 19:22:19,348 [INFO] werkzeug - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.19.197.189:5000
+2026-04-15 19:22:19,349 [INFO] werkzeug - [33mPress CTRL+C to quit[0m
+2026-04-15 19:22:19,388 [INFO] werkzeug -  * Restarting with watchdog (windowsapi)
+2026-04-15 19:22:27,667 [WARNING] werkzeug -  * Debugger is active!
+2026-04-15 19:22:27,758 [INFO] werkzeug -  * Debugger PIN: 113-313-382
+2026-04-15 19:22:28,263 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:22:28] "GET / HTTP/1.1" 200 -
+2026-04-15 19:22:28,788 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:22:28] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-15 19:22:31,506 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:22:31] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:22:32,220 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:22:32] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:22:34,026 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:22:34] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:22:34,282 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:22:34] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:22:34,471 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:22:34] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:22:34,680 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:22:34] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:33:50,119 [INFO] werkzeug - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.19.197.189:5000
+2026-04-15 19:33:50,120 [INFO] werkzeug - [33mPress CTRL+C to quit[0m
+2026-04-15 19:33:50,156 [INFO] werkzeug -  * Restarting with watchdog (windowsapi)
+2026-04-15 19:33:58,659 [WARNING] werkzeug -  * Debugger is active!
+2026-04-15 19:33:58,745 [INFO] werkzeug -  * Debugger PIN: 113-313-382
+2026-04-15 19:33:59,732 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:33:59] "GET / HTTP/1.1" 200 -
+2026-04-15 19:33:59,924 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:33:59] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-15 19:34:02,343 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:34:02] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:34:02,867 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:34:02] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:34:03,044 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:34:03] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:34:03,209 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:34:03] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:34:03,380 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:34:03] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:34:04,895 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:34:04] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:34:05,051 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:34:05] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:34:05,237 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:34:05] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:34:16,607 [INFO] werkzeug -  * Detected change in 'c:\\Users\\Rohit\\Downloads\\sentiment-analyzer new\\sentiment-mlops\\sentiment-analyzer\\app.py', reloading
+2026-04-15 19:34:16,609 [INFO] werkzeug -  * Detected change in 'c:\\Users\\Rohit\\Downloads\\sentiment-analyzer new\\sentiment-mlops\\sentiment-analyzer\\app.py', reloading
+2026-04-15 19:34:16,609 [INFO] werkzeug -  * Detected change in 'c:\\Users\\Rohit\\Downloads\\sentiment-analyzer new\\sentiment-mlops\\sentiment-analyzer\\app.py', reloading
+2026-04-15 19:34:16,837 [INFO] werkzeug -  * Detected change in 'c:\\Users\\Rohit\\Downloads\\sentiment-analyzer new\\sentiment-mlops\\sentiment-analyzer\\app.py', reloading
+2026-04-15 19:34:16,839 [INFO] werkzeug -  * Detected change in 'c:\\Users\\Rohit\\Downloads\\sentiment-analyzer new\\sentiment-mlops\\sentiment-analyzer\\app.py', reloading
+2026-04-15 19:34:16,841 [INFO] werkzeug -  * Detected change in 'c:\\Users\\Rohit\\Downloads\\sentiment-analyzer new\\sentiment-mlops\\sentiment-analyzer\\app.py', reloading
+2026-04-15 19:34:17,026 [INFO] werkzeug -  * Detected change in 'c:\\Users\\Rohit\\Downloads\\sentiment-analyzer new\\sentiment-mlops\\sentiment-analyzer\\app.py', reloading
+2026-04-15 19:34:17,029 [INFO] werkzeug -  * Detected change in 'c:\\Users\\Rohit\\Downloads\\sentiment-analyzer new\\sentiment-mlops\\sentiment-analyzer\\app.py', reloading
+2026-04-15 19:34:17,031 [INFO] werkzeug -  * Detected change in 'c:\\Users\\Rohit\\Downloads\\sentiment-analyzer new\\sentiment-mlops\\sentiment-analyzer\\app.py', reloading
+2026-04-15 19:34:17,992 [INFO] werkzeug -  * Restarting with watchdog (windowsapi)
+2026-04-15 19:34:25,312 [WARNING] werkzeug -  * Debugger is active!
+2026-04-15 19:34:25,354 [INFO] werkzeug -  * Debugger PIN: 113-313-382
+2026-04-15 19:34:25,842 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:34:25] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:34:46,919 [INFO] werkzeug - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.19.197.189:5000
+2026-04-15 19:34:46,921 [INFO] werkzeug - [33mPress CTRL+C to quit[0m
+2026-04-15 19:34:46,958 [INFO] werkzeug -  * Restarting with watchdog (windowsapi)
+2026-04-15 19:34:54,327 [WARNING] werkzeug -  * Debugger is active!
+2026-04-15 19:34:54,439 [INFO] werkzeug -  * Debugger PIN: 113-313-382
+2026-04-15 19:34:55,617 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:34:55] "GET / HTTP/1.1" 200 -
+2026-04-15 19:34:57,943 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:34:57] "GET /sample HTTP/1.1" 200 -
+2026-04-15 19:34:59,080 [INFO] sentiment-analyzer - POST /analyze received
+2026-04-15 19:34:59,292 [INFO] sentiment-analyzer - POST /analyze OK — 25 texts in 212.63ms using v1.1
+2026-04-15 19:34:59,294 [INFO] werkzeug - 127.0.0.1 - - [15/Apr/2026 19:34:59] "POST /analyze HTTP/1.1" 200 -
