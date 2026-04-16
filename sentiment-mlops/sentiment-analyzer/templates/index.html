@@ -1,806 +1,805 @@
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>NLP Sentiment Analyzer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-    <style>
-      :root {
-        --bg: #0a0a0f;
-        --surface: #111118;
-        --surface2: #18181f;
-        --border: #2a2a38;
-        --text: #e8e8f0;
-        --text-muted: #7a7a95;
-        --pos: #22c55e;
-        --neg: #ef4444;
-        --neu: #a78bfa;
-        --accent: #f59e0b;
-        --glow-pos: rgba(34,197,94,0.15);
-        --glow-neg: rgba(239,68,68,0.15);
-        --glow-neu: rgba(167,139,250,0.15);
-      }
-
-      * { margin:0; padding:0; box-sizing:border-box; }
-
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: 'DM Sans', sans-serif;
-        font-size: 15px;
-        min-height: 100vh;
-        overflow-x: hidden;
-      }
-
-      /* Noise texture overlay */
-      body::before {
-        content: '';
-        position: fixed;
-        inset: 0;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-        pointer-events: none;
-        z-index: 0;
-      }
-
-      /* ── HEADER ── */
-      header {
-        position: sticky; top: 0; z-index: 100;
-        background: rgba(10,10,15,0.85);
-        backdrop-filter: blur(20px);
-        border-bottom: 1px solid var(--border);
-        padding: 0 2rem;
-        display: flex; align-items: center; justify-content: space-between;
-        height: 64px;
-      }
-
-      .logo {
-        display: flex; align-items: center; gap: 12px;
-      }
-
-      .logo-icon {
-        width: 36px; height: 36px;
-        background: linear-gradient(135deg, #f59e0b, #ef4444);
-        border-radius: 10px;
-        display: grid; place-items: center;
-        font-size: 18px;
-      }
-
-      .logo-text {
-        font-family: 'Syne', sans-serif;
-        font-weight: 800;
-        font-size: 1.1rem;
-        letter-spacing: -0.02em;
-      }
-
-      .logo-text span { color: var(--accent); }
-
-      .engine-tag {
-        font-size: 11px;
-        font-weight: 500;
-        color: var(--text-muted);
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 4px 12px;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-      }
-
-      /* ── LAYOUT ── */
-      .wrap {
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 3rem 2rem;
-        position: relative; z-index: 1;
-      }
-
-      /* ── HERO ── */
-      .hero {
-        text-align: center;
-        margin-bottom: 3rem;
-      }
-
-      .hero-label {
-        display: inline-block;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        color: var(--accent);
-        background: rgba(245,158,11,0.1);
-        border: 1px solid rgba(245,158,11,0.3);
-        border-radius: 20px;
-        padding: 5px 14px;
-        margin-bottom: 1.2rem;
-      }
-
-      .hero h1 {
-        font-family: 'Syne', sans-serif;
-        font-size: clamp(2rem, 5vw, 3.2rem);
-        font-weight: 800;
-        line-height: 1.1;
-        letter-spacing: -0.03em;
-        margin-bottom: 1rem;
-      }
-
-      .hero h1 em {
-  font-style: normal;
-  background: linear-gradient(90deg, #f59e0b, #ef4444, #a78bfa);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-}
-
-      .hero p {
-        color: var(--text-muted);
-        font-size: 1rem;
-        max-width: 520px;
-        margin: 0 auto;
-        line-height: 1.7;
-      }
-
-      /* ── INPUT CARD ── */
-      .input-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .input-label {
-        display: flex; align-items: center; gap: 8px;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin-bottom: 1rem;
-      }
-
-      .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
-      @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-      textarea {
-        width: 100%;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        color: var(--text);
-        font-family: 'DM Sans', sans-serif;
-        font-size: 14px;
-        line-height: 1.7;
-        padding: 1rem 1.2rem;
-        resize: vertical;
-        min-height: 180px;
-        outline: none;
-        transition: border-color 0.2s;
-      }
-      textarea:focus { border-color: var(--accent); }
-      textarea::placeholder { color: var(--text-muted); }
-
-      .input-hint {
-        font-size: 12px;
-        color: var(--text-muted);
-        margin-top: 0.6rem;
-      }
-
-      /* ── BUTTONS ── */
-      .btn-row {
-        display: flex; gap: 12px; flex-wrap: wrap;
-        margin-top: 1.2rem;
-      }
-
-      .btn-primary {
-        background: linear-gradient(135deg, #f59e0b, #ef4444);
-        color: #0a0a0f;
-        font-family: 'Syne', sans-serif;
-        font-weight: 700;
-        font-size: 14px;
-        padding: 12px 28px;
-        border: none; border-radius: 10px;
-        cursor: pointer;
-        transition: opacity 0.2s, transform 0.15s;
-        letter-spacing: 0.02em;
-      }
-      .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-      .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-      .btn-secondary {
-        background: transparent;
-        color: var(--text-muted);
-        font-family: 'DM Sans', sans-serif;
-        font-size: 14px;
-        padding: 12px 20px;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        cursor: pointer;
-        transition: border-color 0.2s, color 0.2s;
-      }
-      .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
-
-      .btn-sample {
-        background: rgba(245,158,11,0.08);
-        color: var(--accent);
-        font-size: 13px;
-        padding: 10px 18px;
-        border: 1px solid rgba(245,158,11,0.25);
-        border-radius: 8px;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-      .btn-sample:hover { background: rgba(245,158,11,0.15); }
-
-      /* ── ERROR ── */
-      .error-box {
-        background: rgba(239,68,68,0.1);
-        border: 1px solid rgba(239,68,68,0.3);
-        color: #fca5a5;
-        border-radius: 10px;
-        padding: 12px 16px;
-        font-size: 13px;
-        margin-top: 1rem;
-        display: none;
-      }
-
-      /* ── LOADING ── */
-      #loading-section {
-        text-align: center;
-        padding: 5rem 2rem;
-        display: none;
-      }
-
-      .spinner {
-        width: 52px; height: 52px;
-        border: 3px solid var(--border);
-        border-top-color: var(--accent);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-        margin: 0 auto 1.5rem;
-      }
-      @keyframes spin { to { transform: rotate(360deg); } }
-
-      .loading-title {
-        font-family: 'Syne', sans-serif;
-        font-size: 1.4rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-      }
-
-      .loading-sub { color: var(--text-muted); font-size: 14px; }
-
-      /* ── RESULTS ── */
-      #results-section { display: none; }
-
-      .results-header {
-        display: flex; align-items: flex-start; justify-content: space-between;
-        margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;
-      }
-
-      .results-title {
-        font-family: 'Syne', sans-serif;
-        font-size: 1.8rem;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-      }
-
-      .results-meta { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
-
-      .new-btn {
-        background: transparent;
-        color: var(--text-muted);
-        font-size: 13px;
-        padding: 10px 18px;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s;
-        white-space: nowrap;
-      }
-      .new-btn:hover { color: var(--text); border-color: var(--text-muted); }
-
-      /* ── OVERALL SCORE ── */
-      .overall-card {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 2rem;
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        margin-bottom: 1.5rem;
-        flex-wrap: wrap;
-      }
-
-      .score-ring {
-        position: relative;
-        width: 110px; height: 110px;
-        flex-shrink: 0;
-      }
-
-      .score-ring svg { transform: rotate(-90deg); }
-
-      .score-ring-label {
-        position: absolute;
-        inset: 0;
-        display: flex; flex-direction: column;
-        align-items: center; justify-content: center;
-      }
-
-      .score-number {
-        font-family: 'Syne', sans-serif;
-        font-size: 1.5rem;
-        font-weight: 800;
-      }
-
-      .score-sub { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
-
-      .overall-info { flex: 1; }
-
-      .overall-verdict {
-        font-family: 'Syne', sans-serif;
-        font-size: 1.6rem;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        margin-bottom: 0.4rem;
-      }
-
-      .overall-desc { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
-
-      .stat-pills {
-        display: flex; gap: 10px; flex-wrap: wrap;
-        margin-top: 1rem;
-      }
-
-      .stat-pill {
-        font-size: 12px;
-        font-weight: 500;
-        padding: 5px 12px;
-        border-radius: 20px;
-        border: 1px solid;
-      }
-
-      .pill-pos { color: var(--pos); border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.08); }
-      .pill-neg { color: var(--neg); border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); }
-      .pill-neu { color: var(--neu); border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.08); }
-
-      /* ── SECTION ── */
-      .result-section {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 2rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .section-tag {
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        color: var(--accent);
-        margin-bottom: 0.5rem;
-      }
-
-      .section-title {
-        font-family: 'Syne', sans-serif;
-        font-size: 1.2rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-      }
-
-      /* ── CHARTS GRID ── */
-      .charts-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1.5rem;
-      }
-
-      .chart-card {
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 1.5rem;
-      }
-
-      .chart-title {
-        font-family: 'Syne', sans-serif;
-        font-size: 13px;
-        font-weight: 700;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-bottom: 1rem;
-      }
-
-      .chart-wrap { position: relative; height: 220px; }
-
-      /* ── KEYWORDS ── */
-      .keywords-wrap {
-        display: flex; flex-wrap: wrap; gap: 8px;
-      }
-
-      .keyword-chip {
-        font-size: 12px;
-        font-weight: 500;
-        padding: 5px 12px;
-        border-radius: 20px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        color: var(--text);
-        transition: border-color 0.2s;
-      }
-
-      .keyword-chip:hover { border-color: var(--accent); }
-
-      .keyword-count {
-        color: var(--accent);
-        font-weight: 700;
-        margin-left: 4px;
-      }
-
-      /* ── TWEETS TABLE ── */
-      .tweets-wrap {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        max-height: 480px;
-        overflow-y: auto;
-        padding-right: 4px;
-      }
-
-      .tweets-wrap::-webkit-scrollbar { width: 4px; }
-      .tweets-wrap::-webkit-scrollbar-track { background: var(--surface2); }
-      .tweets-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-      .tweet-row {
-        background: var(--surface2);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 12px 16px;
-        display: flex;
-        gap: 12px;
-        align-items: flex-start;
-        transition: border-color 0.2s;
-      }
-
-      .tweet-row:hover { border-color: var(--text-muted); }
-
-      .tweet-badge {
-        font-size: 10px;
-        font-weight: 700;
-        padding: 3px 8px;
-        border-radius: 6px;
-        white-space: nowrap;
-        margin-top: 2px;
-        flex-shrink: 0;
-      }
-
-      .badge-Positive { background: rgba(34,197,94,0.15); color: var(--pos); }
-      .badge-Negative { background: rgba(239,68,68,0.15); color: var(--neg); }
-      .badge-Neutral  { background: rgba(167,139,250,0.15); color: var(--neu); }
-
-      .tweet-text { font-size: 13px; line-height: 1.6; flex: 1; }
-      .tweet-score { font-size: 11px; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
-
-      /* ── FOOTER ── */
-      .footer {
-        text-align: center;
-        padding: 2rem;
-        font-size: 12px;
-        color: var(--text-muted);
-        border-top: 1px solid var(--border);
-        margin-top: 3rem;
-      }
-    </style>
-  </head>
-  <body>
-
-    <!-- HEADER -->
-    <header>
-      <div class="logo">
-        <div class="logo-icon">💬</div>
-        <div class="logo-text">Sentiment<span>Lab</span></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NLP Sentiment Analyzer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #18181f;
+      --border: #2a2a38;
+      --text: #e8e8f0;
+      --text-muted: #7a7a95;
+      --pos: #22c55e;
+      --neg: #ef4444;
+      --neu: #a78bfa;
+      --accent: #f59e0b;
+      --glow-pos: rgba(34,197,94,0.15);
+      --glow-neg: rgba(239,68,68,0.15);
+      --glow-neu: rgba(167,139,250,0.15);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Noise texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      border-radius: 10px;
+      display: grid; place-items: center;
+      font-size: 18px;
+    }
+
+    .logo-text {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text span { color: var(--accent); }
+
+    .engine-tag {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ── LAYOUT ── */
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      position: relative; z-index: 1;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .hero-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 20px;
+      padding: 5px 14px;
+      margin-bottom: 1.2rem;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, #f59e0b, #ef4444, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ── INPUT CARD ── */
+    .input-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-label {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+      padding: 1rem 1.2rem;
+      resize: vertical;
+      min-height: 180px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: var(--text-muted); }
+
+    .input-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 0.6rem;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-row {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      margin-top: 1.2rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      color: #0a0a0f;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 28px;
+      border: none; border-radius: 10px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+      letter-spacing: 0.02em;
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 12px 20px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
+
+    .btn-sample {
+      background: rgba(245,158,11,0.08);
+      color: var(--accent);
+      font-size: 13px;
+      padding: 10px 18px;
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-sample:hover { background: rgba(245,158,11,0.15); }
+
+    /* ── ERROR ── */
+    .error-box {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #fca5a5;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    /* ── LOADING ── */
+    #loading-section {
+      text-align: center;
+      padding: 5rem 2rem;
+      display: none;
+    }
+
+    .spinner {
+      width: 52px; height: 52px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .loading-sub { color: var(--text-muted); font-size: 14px; }
+
+    /* ── RESULTS ── */
+    #results-section { display: none; }
+
+    .results-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 2.5rem; flex-wrap: wrap; gap: 1rem;
+    }
+
+    .results-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .results-meta { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+
+    .new-btn {
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      padding: 10px 18px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .new-btn:hover { color: var(--text); border-color: var(--text-muted); }
+
+    /* ── OVERALL SCORE ── */
+    .overall-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .score-ring {
+      position: relative;
+      width: 110px; height: 110px;
+      flex-shrink: 0;
+    }
+
+    .score-ring svg { transform: rotate(-90deg); }
+
+    .score-ring-label {
+      position: absolute;
+      inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+
+    .score-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+
+    .score-sub { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .overall-info { flex: 1; }
+
+    .overall-verdict {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+
+    .overall-desc { color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+    .stat-pills {
+      display: flex; gap: 10px; flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .stat-pill {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid;
+    }
+
+    .pill-pos { color: var(--pos); border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.08); }
+    .pill-neg { color: var(--neg); border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); }
+    .pill-neu { color: var(--neu); border-color: rgba(167,139,250,0.3); background: rgba(167,139,250,0.08); }
+
+    /* ── SECTION ── */
+    .result-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── CHARTS GRID ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .chart-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+
+    .chart-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+    }
+
+    .chart-wrap { position: relative; height: 220px; }
+
+    /* ── KEYWORDS ── */
+    .keywords-wrap {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+
+    .keyword-chip {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+
+    .keyword-chip:hover { border-color: var(--accent); }
+
+    .keyword-count {
+      color: var(--accent);
+      font-weight: 700;
+      margin-left: 4px;
+    }
+
+    /* ── TWEETS TABLE ── */
+    .tweets-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .tweets-wrap::-webkit-scrollbar { width: 4px; }
+    .tweets-wrap::-webkit-scrollbar-track { background: var(--surface2); }
+    .tweets-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .tweet-row {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      transition: border-color 0.2s;
+    }
+
+    .tweet-row:hover { border-color: var(--text-muted); }
+
+    .tweet-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .badge-Positive { background: rgba(34,197,94,0.15); color: var(--pos); }
+    .badge-Negative { background: rgba(239,68,68,0.15); color: var(--neg); }
+    .badge-Neutral  { background: rgba(167,139,250,0.15); color: var(--neu); }
+
+    .tweet-text { font-size: 13px; line-height: 1.6; flex: 1; }
+    .tweet-score { font-size: 11px; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 12px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">💬</div>
+      <div class="logo-text">Sentiment<span>Lab</span></div>
+    </div>
+    <div class="engine-tag">NLTK + TextBlob</div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- INPUT SECTION -->
+    <section id="input-section">
+
+      <div class="hero">
+        <div class="hero-label">NLP Sentiment Analysis</div>
+        <h1>Decode the <em>emotion</em><br>behind every word</h1>
+        <p>Paste social media comments or tweets — get instant sentiment breakdown, emotion detection, and keyword insights.</p>
       </div>
-      <div class="engine-tag">NLTK + TextBlob</div>
-    </header>
 
-    <div class="wrap">
-
-      <!-- INPUT SECTION -->
-      <section id="input-section">
-
-        <div class="hero">
-          <div class="hero-label">NLP Sentiment Analysis</div>
-          <h1>Decode the <em>emotion</em><br>behind every word</h1>
-          <p>Paste social media comments or tweets — get instant sentiment breakdown, emotion detection, and keyword insights.</p>
+      <div class="input-card">
+        <div class="input-label">
+          <div class="dot"></div>
+          Input — one comment per line
         </div>
+        <textarea id="text-input" placeholder="Paste tweets or comments here, one per line...
+Example:
+I absolutely love this product! Best purchase ever 😍
+This service is terrible, never coming back
+Pretty average experience, nothing special"></textarea>
+        <div class="input-hint">💡 Each line = one tweet/comment. Minimum 1 line required.</div>
 
-        <div class="input-card">
-          <div class="input-label">
-            <div class="dot"></div>
-            Input — one comment per line
-          </div>
-          <textarea id="text-input" placeholder="Paste tweets or comments here, one per line...
-  Example:
-  I absolutely love this product! Best purchase ever 😍
-  This service is terrible, never coming back
-  Pretty average experience, nothing special"></textarea>
-          <div class="input-hint">💡 Each line = one tweet/comment. Minimum 1 line required.</div>
-
-          <div class="btn-row">
-            <button class="btn-primary" id="analyze-btn" onclick="startAnalysis()">Analyze Sentiment →</button>
-            <button class="btn-sample" onclick="loadSample()">Load Sample Tweets</button>
-            <button class="btn-secondary" onclick="clearAll()">Clear</button>
-          </div>
-          <div class="error-box" id="error-box"></div>
+        <div class="btn-row">
+          <button class="btn-primary" id="analyze-btn" onclick="startAnalysis()">Analyze Sentiment →</button>
+          <button class="btn-sample" onclick="loadSample()">Load Sample Tweets</button>
+          <button class="btn-secondary" onclick="clearAll()">Clear</button>
         </div>
+        <div class="error-box" id="error-box"></div>
+      </div>
 
-      </section>
+    </section>
 
-      <!-- LOADING SECTION -->
-      <section id="loading-section">
-        <div class="spinner"></div>
-        <div class="loading-title">Analyzing sentiments…</div>
-        <div class="loading-sub" id="loading-step">Running VADER + TextBlob models</div>
-      </section>
+    <!-- LOADING SECTION -->
+    <section id="loading-section">
+      <div class="spinner"></div>
+      <div class="loading-title">Analyzing sentiments…</div>
+      <div class="loading-sub" id="loading-step">Running VADER + TextBlob models</div>
+    </section>
 
-      <!-- RESULTS SECTION -->
-      <section id="results-section">
+    <!-- RESULTS SECTION -->
+    <section id="results-section">
 
-        <div class="results-header">
-          <div>
-            <div class="results-title">Analysis Report</div>
-            <div class="results-meta" id="results-meta"></div>
-          </div>
-          <button class="new-btn" onclick="resetToInput()">← New Analysis</button>
+      <div class="results-header">
+        <div>
+          <div class="results-title">Analysis Report</div>
+          <div class="results-meta" id="results-meta"></div>
         </div>
+        <button class="new-btn" onclick="resetToInput()">← New Analysis</button>
+      </div>
 
-        <!-- Overall Score -->
-        <div class="overall-card" id="overall-card"></div>
+      <!-- Overall Score -->
+      <div class="overall-card" id="overall-card"></div>
 
-        <!-- Charts -->
-        <div class="result-section">
-          <div class="section-tag">01 — Distribution</div>
-          <div class="section-title">Sentiment & Emotion Breakdown</div>
-          <div class="charts-grid">
-            <div class="chart-card">
-              <div class="chart-title">Sentiment Distribution</div>
-              <div class="chart-wrap"><canvas id="chart-sentiment"></canvas></div>
-            </div>
-            <div class="chart-card">
-              <div class="chart-title">Emotion Categories</div>
-              <div class="chart-wrap"><canvas id="chart-emotion"></canvas></div>
-            </div>
-            <div class="chart-card">
-              <div class="chart-title">Sentiment Score Timeline</div>
-              <div class="chart-wrap"><canvas id="chart-timeline"></canvas></div>
-            </div>
+      <!-- Charts -->
+      <div class="result-section">
+        <div class="section-tag">01 — Distribution</div>
+        <div class="section-title">Sentiment & Emotion Breakdown</div>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-title">Sentiment Distribution</div>
+            <div class="chart-wrap"><canvas id="chart-sentiment"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Emotion Categories</div>
+            <div class="chart-wrap"><canvas id="chart-emotion"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Sentiment Score Timeline</div>
+            <div class="chart-wrap"><canvas id="chart-timeline"></canvas></div>
           </div>
         </div>
+      </div>
 
-        <!-- Keywords -->
-        <div class="result-section">
-          <div class="section-tag">02 — Keywords</div>
-          <div class="section-title">Most Frequent Words</div>
-          <div class="keywords-wrap" id="keywords-wrap"></div>
-        </div>
+      <!-- Keywords -->
+      <div class="result-section">
+        <div class="section-tag">02 — Keywords</div>
+        <div class="section-title">Most Frequent Words</div>
+        <div class="keywords-wrap" id="keywords-wrap"></div>
+      </div>
 
-        <!-- Tweets Table -->
-        <div class="result-section">
-          <div class="section-tag">03 — Detail</div>
-          <div class="section-title">Per-Comment Analysis</div>
-          <div class="tweets-wrap" id="tweets-wrap"></div>
-        </div>
+      <!-- Tweets Table -->
+      <div class="result-section">
+        <div class="section-tag">03 — Detail</div>
+        <div class="section-title">Per-Comment Analysis</div>
+        <div class="tweets-wrap" id="tweets-wrap"></div>
+      </div>
 
-      </section>
+    </section>
 
-    </div>
+  </div>
 
-    <div class="footer">
-      Built with Python · NLTK VADER · TextBlob · Flask · Chart.js
-    </div>
+  <div class="footer">
+    Built with Python · NLTK VADER · TextBlob · Flask · Chart.js
+  </div>
 
-    <script>
-      let charts = [];
+  <script>
+    let charts = [];
 
-      async function loadSample() {
-        const res = await fetch('/sample');
+    async function loadSample() {
+      const res = await fetch('/sample');
+      const json = await res.json();
+      if (json.success) document.getElementById('text-input').value = json.data;
+    }
+
+    function clearAll() {
+      document.getElementById('text-input').value = '';
+      document.getElementById('error-box').style.display = 'none';
+    }
+
+    function showError(msg) {
+      const box = document.getElementById('error-box');
+      box.textContent = msg;
+      box.style.display = 'block';
+    }
+
+    function resetToInput() {
+      document.getElementById('results-section').style.display = 'none';
+      document.getElementById('input-section').style.display = 'block';
+      charts.forEach(c => c.destroy());
+      charts = [];
+    }
+
+    async function startAnalysis() {
+      const text = document.getElementById('text-input').value.trim();
+      if (!text) return showError('Please paste at least one comment or tweet.');
+
+      document.getElementById('error-box').style.display = 'none';
+      document.getElementById('input-section').style.display = 'none';
+      document.getElementById('loading-section').style.display = 'block';
+
+      const steps = ['Tokenizing text...', 'Running VADER model...', 'Calculating TextBlob scores...', 'Extracting keywords...', 'Building charts...'];
+      let i = 0;
+      const interval = setInterval(() => {
+        document.getElementById('loading-step').textContent = steps[i % steps.length];
+        i++;
+      }, 700);
+
+      try {
+        const res = await fetch('/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
         const json = await res.json();
-        if (json.success) document.getElementById('text-input').value = json.data;
-      }
+        clearInterval(interval);
 
-      function clearAll() {
-        document.getElementById('text-input').value = '';
-        document.getElementById('error-box').style.display = 'none';
-      }
-
-      function showError(msg) {
-        const box = document.getElementById('error-box');
-        box.textContent = msg;
-        box.style.display = 'block';
-      }
-
-      function resetToInput() {
-        document.getElementById('results-section').style.display = 'none';
-        document.getElementById('input-section').style.display = 'block';
-        charts.forEach(c => c.destroy());
-        charts = [];
-      }
-
-      async function startAnalysis() {
-        const text = document.getElementById('text-input').value.trim();
-        if (!text) return showError('Please paste at least one comment or tweet.');
-
-        document.getElementById('error-box').style.display = 'none';
-        document.getElementById('input-section').style.display = 'none';
-        document.getElementById('loading-section').style.display = 'block';
-
-        const steps = ['Tokenizing text...', 'Running VADER model...', 'Calculating TextBlob scores...', 'Extracting keywords...', 'Building charts...'];
-        let i = 0;
-        const interval = setInterval(() => {
-          document.getElementById('loading-step').textContent = steps[i % steps.length];
-          i++;
-        }, 700);
-
-        try {
-          const res = await fetch('/analyze', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text })
-          });
-          const json = await res.json();
-          clearInterval(interval);
-
-          if (!json.success) throw new Error(json.error);
-          renderResults(json.data);
-        } catch (err) {
-          clearInterval(interval);
-          document.getElementById('loading-section').style.display = 'none';
-          document.getElementById('input-section').style.display = 'block';
-          showError('Error: ' + err.message);
-        }
-      }
-
-      function getSentimentColor(s) {
-        if (s === 'Positive') return '#22c55e';
-        if (s === 'Negative') return '#ef4444';
-        return '#a78bfa';
-      }
-
-      function renderResults(data) {
+        if (!json.success) throw new Error(json.error);
+        renderResults(json.data);
+      } catch (err) {
+        clearInterval(interval);
         document.getElementById('loading-section').style.display = 'none';
-        document.getElementById('results-section').style.display = 'block';
-
-        document.getElementById('results-meta').textContent =
-          `${data.total} comments analyzed · NLTK VADER + TextBlob`;
-
-        // Overall card
-        const sc = data.avg_compound;
-        const pct = Math.round((sc + 1) / 2 * 100);
-        const color = getSentimentColor(data.overall_sentiment);
-        const circumference = 2 * Math.PI * 40;
-        const dash = (pct / 100) * circumference;
-
-        const counts = data.sentiment_counts;
-        document.getElementById('overall-card').innerHTML = `
-          <div class="score-ring">
-            <svg width="110" height="110" viewBox="0 0 110 110">
-              <circle cx="55" cy="55" r="40" fill="none" stroke="#2a2a38" stroke-width="8"/>
-              <circle cx="55" cy="55" r="40" fill="none" stroke="${color}" stroke-width="8"
-                stroke-dasharray="${dash} ${circumference}" stroke-linecap="round"/>
-            </svg>
-            <div class="score-ring-label">
-              <div class="score-number" style="color:${color}">${sc > 0 ? '+' : ''}${sc}</div>
-              <div class="score-sub">score</div>
-            </div>
-          </div>
-          <div class="overall-info">
-            <div class="overall-verdict" style="color:${color}">${data.overall_sentiment} Overall</div>
-            <div class="overall-desc">
-              Avg subjectivity: <strong>${data.avg_subjectivity}</strong> &nbsp;·&nbsp;
-              ${data.total} comments processed
-            </div>
-            <div class="stat-pills">
-              <div class="stat-pill pill-pos">✅ ${counts.Positive} Positive</div>
-              <div class="stat-pill pill-neg">❌ ${counts.Negative} Negative</div>
-              <div class="stat-pill pill-neu">🔵 ${counts.Neutral} Neutral</div>
-            </div>
-          </div>
-        `;
-
-        // Chart 1: Sentiment doughnut
-        const ctx1 = document.getElementById('chart-sentiment').getContext('2d');
-        charts.push(new Chart(ctx1, {
-          type: 'doughnut',
-          data: {
-            labels: ['Positive', 'Negative', 'Neutral'],
-            datasets: [{
-              data: [counts.Positive, counts.Negative, counts.Neutral],
-              backgroundColor: ['rgba(34,197,94,0.8)', 'rgba(239,68,68,0.8)', 'rgba(167,139,250,0.8)'],
-              borderColor: '#18181f',
-              borderWidth: 3,
-            }]
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: {
-              legend: { labels: { color: '#e8e8f0', font: { family: 'DM Sans' } } }
-            },
-            cutout: '65%'
-          }
-        }));
-
-        // Chart 2: Emotion bar
-        const emotions = data.emotion_counts;
-        const emotionColors = { Joy:'#f59e0b', Optimism:'#22c55e', Anger:'#ef4444', Sadness:'#60a5fa', Neutral:'#a78bfa' };
-        const ctx2 = document.getElementById('chart-emotion').getContext('2d');
-        charts.push(new Chart(ctx2, {
-          type: 'bar',
-          data: {
-            labels: Object.keys(emotions),
-            datasets: [{
-              label: 'Count',
-              data: Object.values(emotions),
-              backgroundColor: Object.keys(emotions).map(k => emotionColors[k] || '#7a7a95'),
-              borderRadius: 8,
-            }]
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              x: { ticks: { color: '#7a7a95' }, grid: { color: '#2a2a38' } },
-              y: { ticks: { color: '#7a7a95' }, grid: { color: '#2a2a38' } }
-            }
-          }
-        }));
-
-        // Chart 3: Timeline line
-        const ctx3 = document.getElementById('chart-timeline').getContext('2d');
-        charts.push(new Chart(ctx3, {
-          type: 'line',
-          data: {
-            labels: data.timeline.map(t => t.label),
-            datasets: [{
-              label: 'Avg Compound Score',
-              data: data.timeline.map(t => t.score),
-              borderColor: '#f59e0b',
-              backgroundColor: 'rgba(245,158,11,0.1)',
-              tension: 0.4,
-              fill: true,
-              pointBackgroundColor: '#f59e0b',
-              pointRadius: 4,
-            }]
-          },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { labels: { color: '#e8e8f0' } } },
-            scales: {
-              x: { ticks: { color: '#7a7a95', font: { size: 10 } }, grid: { color: '#2a2a38' } },
-              y: { ticks: { color: '#7a7a95' }, grid: { color: '#2a2a38' }, min: -1, max: 1 }
-            }
-          }
-        }));
-
-        // Keywords
-        const kw = document.getElementById('keywords-wrap');
-        kw.innerHTML = data.keywords.map(k =>
-          `<div class="keyword-chip">${k.word}<span class="keyword-count">${k.count}</span></div>`
-        ).join('');
-
-        // Tweets
-        const tw = document.getElementById('tweets-wrap');
-        tw.innerHTML = data.results.map(r => `
-          <div class="tweet-row">
-            <span class="tweet-badge badge-${r.sentiment}">${r.sentiment}</span>
-            <span class="tweet-text">${r.text}</span>
-            <span class="tweet-score">${r.compound > 0 ? '+' : ''}${r.compound}</span>
-          </div>
-        `).join('');
+        document.getElementById('input-section').style.display = 'block';
+        showError('Error: ' + err.message);
       }
-    </script>
-  </body>
-  </html>
+    }
+
+    function getSentimentColor(s) {
+      if (s === 'Positive') return '#22c55e';
+      if (s === 'Negative') return '#ef4444';
+      return '#a78bfa';
+    }
+
+    function renderResults(data) {
+      document.getElementById('loading-section').style.display = 'none';
+      document.getElementById('results-section').style.display = 'block';
+
+      document.getElementById('results-meta').textContent =
+        `${data.total} comments analyzed · NLTK VADER + TextBlob`;
+
+      // Overall card
+      const sc = data.avg_compound;
+      const pct = Math.round((sc + 1) / 2 * 100);
+      const color = getSentimentColor(data.overall_sentiment);
+      const circumference = 2 * Math.PI * 40;
+      const dash = (pct / 100) * circumference;
+
+      const counts = data.sentiment_counts;
+      document.getElementById('overall-card').innerHTML = `
+        <div class="score-ring">
+          <svg width="110" height="110" viewBox="0 0 110 110">
+            <circle cx="55" cy="55" r="40" fill="none" stroke="#2a2a38" stroke-width="8"/>
+            <circle cx="55" cy="55" r="40" fill="none" stroke="${color}" stroke-width="8"
+              stroke-dasharray="${dash} ${circumference}" stroke-linecap="round"/>
+          </svg>
+          <div class="score-ring-label">
+            <div class="score-number" style="color:${color}">${sc > 0 ? '+' : ''}${sc}</div>
+            <div class="score-sub">score</div>
+          </div>
+        </div>
+        <div class="overall-info">
+          <div class="overall-verdict" style="color:${color}">${data.overall_sentiment} Overall</div>
+          <div class="overall-desc">
+            Avg subjectivity: <strong>${data.avg_subjectivity}</strong> &nbsp;·&nbsp;
+            ${data.total} comments processed
+          </div>
+          <div class="stat-pills">
+            <div class="stat-pill pill-pos">✅ ${counts.Positive} Positive</div>
+            <div class="stat-pill pill-neg">❌ ${counts.Negative} Negative</div>
+            <div class="stat-pill pill-neu">🔵 ${counts.Neutral} Neutral</div>
+          </div>
+        </div>
+      `;
+
+      // Chart 1: Sentiment doughnut
+      const ctx1 = document.getElementById('chart-sentiment').getContext('2d');
+      charts.push(new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: ['Positive', 'Negative', 'Neutral'],
+          datasets: [{
+            data: [counts.Positive, counts.Negative, counts.Neutral],
+            backgroundColor: ['rgba(34,197,94,0.8)', 'rgba(239,68,68,0.8)', 'rgba(167,139,250,0.8)'],
+            borderColor: '#18181f',
+            borderWidth: 3,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#e8e8f0', font: { family: 'DM Sans' } } }
+          },
+          cutout: '65%'
+        }
+      }));
+
+      // Chart 2: Emotion bar
+      const emotions = data.emotion_counts;
+      const emotionColors = { Joy:'#f59e0b', Optimism:'#22c55e', Anger:'#ef4444', Sadness:'#60a5fa', Neutral:'#a78bfa' };
+      const ctx2 = document.getElementById('chart-emotion').getContext('2d');
+      charts.push(new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(emotions),
+          datasets: [{
+            label: 'Count',
+            data: Object.values(emotions),
+            backgroundColor: Object.keys(emotions).map(k => emotionColors[k] || '#7a7a95'),
+            borderRadius: 8,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#7a7a95' }, grid: { color: '#2a2a38' } },
+            y: { ticks: { color: '#7a7a95' }, grid: { color: '#2a2a38' } }
+          }
+        }
+      }));
+
+      // Chart 3: Timeline line
+      const ctx3 = document.getElementById('chart-timeline').getContext('2d');
+      charts.push(new Chart(ctx3, {
+        type: 'line',
+        data: {
+          labels: data.timeline.map(t => t.label),
+          datasets: [{
+            label: 'Avg Compound Score',
+            data: data.timeline.map(t => t.score),
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245,158,11,0.1)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#f59e0b',
+            pointRadius: 4,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#e8e8f0' } } },
+          scales: {
+            x: { ticks: { color: '#7a7a95', font: { size: 10 } }, grid: { color: '#2a2a38' } },
+            y: { ticks: { color: '#7a7a95' }, grid: { color: '#2a2a38' }, min: -1, max: 1 }
+          }
+        }
+      }));
+
+      // Keywords
+      const kw = document.getElementById('keywords-wrap');
+      kw.innerHTML = data.keywords.map(k =>
+        `<div class="keyword-chip">${k.word}<span class="keyword-count">${k.count}</span></div>`
+      ).join('');
+
+      // Tweets
+      const tw = document.getElementById('tweets-wrap');
+      tw.innerHTML = data.results.map(r => `
+        <div class="tweet-row">
+          <span class="tweet-badge badge-${r.sentiment}">${r.sentiment}</span>
+          <span class="tweet-text">${r.text}</span>
+          <span class="tweet-score">${r.compound > 0 ? '+' : ''}${r.compound}</span>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
